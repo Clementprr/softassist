@@ -1,0 +1,27 @@
+name: Update Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New version number (e.g., 1.0.1)'
+        required: true
+        type: string
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update version in package.json
+        run: npm version ${{ github.event.inputs.version }} --no-git-tag-version
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "chore: bump version to ${{ github.event.inputs.version }}"
+          title: "Bump version to ${{ github.event.inputs.version }}"
+          branch: "bump-version-${{ github.event.inputs.version }}"
+          base: "main"
